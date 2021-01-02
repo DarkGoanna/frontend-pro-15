@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hw-15</title>
+</head>
+
+<body>
+    <script>
+        var toDo = {
+            _list: [],
+            get list() {
+                return this._list;
+            },
+            addNote: function (text) {
+                var id = Date.now();
+                if (typeof text === 'string') {
+                    text = text.trim();
+                };
+                if (text) {
+                    this.list.push({
+                        text,
+                        id,
+                        isDone: false,
+                    });
+                }
+                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+            },
+            removeNote: function (id) {
+                var index = this.getNoteIndex(id);
+                if (index != -1) {
+                    this.list.splice(index, 1);
+                };
+                localStorage.removeItem(id);
+            },
+            editNote: function (id, newText) {
+                var index = this.getNoteIndex(id);
+                if (typeof newText === 'string') {
+                    newText = newText.trim();
+                }
+                if (index != -1 && newText) {
+                    this.list[index].text = newText;
+                };
+                localStorage.removeItem(id);
+                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+            },
+            setComplete: function (id) {
+                var index = this.getNoteIndex(id);
+                if (index != -1) {
+                    this.list[index].isDone = true;
+                };
+                localStorage.removeItem(id);
+                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+            },
+            getNoteIndex: function (value) {
+                return this.list.findIndex(function (obj) {
+                    if (obj.id == value) return obj;
+                });
+            },
+        };
+
+
+        Object.defineProperty(toDoList, '_list', {
+            writable: false,
+            configurable: false,
+        });
+        Object.freeze(toDoList);
+
+
+        window.addEventListener('load', () => {
+            localStorage.clear();
+            if (toDoList.list) {
+                return toDoList.list.forEach(task => {
+                    localStorage.setItem(task.id, JSON.stringify(task, ['text', 'isDone']));
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
