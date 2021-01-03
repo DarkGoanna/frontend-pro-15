@@ -25,15 +25,15 @@
                         id,
                         isDone: false,
                     });
-                }
-                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+                };
+                this.sendToStorage();
             },
             removeNote: function (id) {
                 var index = this.getNoteIndex(id);
                 if (index != -1) {
                     this.list.splice(index, 1);
                 };
-                localStorage.removeItem(id);
+                this.sendToStorage();
             },
             editNote: function (id, newText) {
                 var index = this.getNoteIndex(id);
@@ -43,40 +43,42 @@
                 if (index != -1 && newText) {
                     this.list[index].text = newText;
                 };
-                localStorage.removeItem(id);
-                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+                this.sendToStorage();
             },
             setComplete: function (id) {
                 var index = this.getNoteIndex(id);
                 if (index != -1) {
                     this.list[index].isDone = true;
                 };
-                localStorage.removeItem(id);
-                localStorage.setItem(id, JSON.stringify(this.list[this.getNoteIndex(id)], ['text', 'isDone']));
+                this.sendToStorage();
             },
             getNoteIndex: function (value) {
                 return this.list.findIndex(function (obj) {
                     if (obj.id == value) return obj;
                 });
             },
+            sendToStorage: function () {
+                const storageToDo = localStorage.getItem('toDo');
+                const toDoString = JSON.stringify(this.list);
+
+                if (storageToDo) {
+                    if (storageToDo !== toDoString) {
+                        localStorage.removeItem('toDo');
+                        localStorage.setItem('toDo', toDoString);
+                    }
+                } else {
+                    localStorage.setItem('toDo', toDoString);
+                }
+            }
         };
 
-
-        Object.defineProperty(toDoList, '_list', {
+        Object.defineProperty(toDo, '_list', {
             writable: false,
             configurable: false,
         });
-        Object.freeze(toDoList);
+        Object.freeze(toDo);
 
-
-        window.addEventListener('load', () => {
-            localStorage.clear();
-            if (toDoList.list) {
-                return toDoList.list.forEach(task => {
-                    localStorage.setItem(task.id, JSON.stringify(task, ['text', 'isDone']));
-                });
-            }
-        });
+        window.addEventListener('load', () => toDo.sendToStorage())
     </script>
 </body>
 
