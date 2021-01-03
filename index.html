@@ -15,7 +15,8 @@
                 return this._list;
             },
             addNote: function (text) {
-                var id = Date.now();
+                this.firstLoad();
+                const id = Date.now();
                 if (typeof text === 'string') {
                     text = text.trim();
                 };
@@ -62,14 +63,22 @@
                 const toDoString = JSON.stringify(this.list);
 
                 if (storageToDo) {
-                    if (storageToDo !== toDoString) {
-                        localStorage.removeItem('toDo');
-                        localStorage.setItem('toDo', toDoString);
+                    if (storageToDo === toDoString) {
+                        return;
                     }
-                } else {
-                    localStorage.setItem('toDo', toDoString);
+                    localStorage.removeItem('toDo');
                 }
-            }
+                localStorage.setItem('toDo', toDoString);
+            },
+            firstLoad: function () {
+                const storageToDo = JSON.parse(localStorage.getItem('toDo'));
+
+                if (!this.list.length && storageToDo && storageToDo.length) {
+                    storageToDo.forEach(element => {
+                        this.list.push(element);
+                    });
+                }
+            },
         };
 
         Object.defineProperty(toDo, '_list', {
@@ -77,8 +86,6 @@
             configurable: false,
         });
         Object.freeze(toDo);
-
-        window.addEventListener('load', () => toDo.sendToStorage())
     </script>
 </body>
 
