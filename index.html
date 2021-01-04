@@ -15,7 +15,6 @@
                 return this._list;
             },
             addNote: function (text) {
-                this.firstLoad();
                 const id = Date.now();
                 if (typeof text === 'string') {
                     text = text.trim();
@@ -86,6 +85,8 @@
             configurable: false,
         });
         Object.freeze(toDo);
+        
+        toDo.firstLoad();
     </script>
 </body>
 
